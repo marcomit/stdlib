@@ -32,9 +32,9 @@
 */
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 typedef struct listNode {
   union {
@@ -61,6 +61,9 @@ typedef struct list {
   listNode *head;
   listNode *tail;
   size_t len;
+
+  listNode *curr;
+  size_t index;
 } list;
 
 void freeListNode(listNode *, bool);
@@ -74,8 +77,7 @@ stack *newStack();
 void stackFree(stack *);
 
 void stackPush(stack *, void *);
-void stackPushUint(stack *, uint64_t);
-void stackPushDouble(stack *, double);
+void stackPushNode(stack *, listNode *);
 
 listNode *stackPop(stack *);
 
@@ -87,8 +89,7 @@ listNode *stackPop(stack *);
 queue *newQueue();
 void queueFree(queue *);
 void enqueue(queue *, void *);
-void enqueueUint(queue *, uint64_t);
-void enqueueDouble(queue *, double);
+void enqueueNode(queue *, listNode *);
 listNode *dequeue(queue *);
 
 /*
@@ -98,9 +99,19 @@ listNode *dequeue(queue *);
  */
 list *newList();
 void listFree(list *);
+list *listCopy(list *);
 
 void listPush(list *, void *);
+void listPUshNode(list *, listNode *);
 listNode *listPop(list *);
 
 void listPushFront(list *, void *);
+void listPushFrontNode(list *, listNode *);
 listNode *listPopFront(list *);
+
+listNode *listPeek(list *);
+listNode *listNext(list *);
+listNode *listPrev(list *);
+listNode *listAt(list *, size_t);
+
+void listSort(list *, int (*compare)(listNode *, listNode *));

@@ -36,9 +36,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define NEXT(n) (n) = (n)->next;
+#define PREV(n) (n) = (n)->prev;
+#define DEFAULT_LIST_COMPARE(a, b) return a < b
+
 listNode *newListNode() {
   listNode *node = malloc(sizeof(listNode));
-  if(!node) {
+  if (!node) {
     printf("Error allocating listNode");
     exit(1);
   }
@@ -55,6 +59,18 @@ void freeListNode(listNode *node, bool recursive) {
   free(node);
 }
 
+static listNode *listNodeCopy(listNode *node, bool recursive) {
+  if (!node)
+    return NULL;
+  listNode *copy = newListNode();
+  copy->value = node->value;
+  if (recursive) {
+    copy->prev = listNodeCopy(node->prev, recursive);
+    copy->next = listNodeCopy(node->next, recursive);
+  }
+  return copy;
+}
+
 stack *newStack() {
   stack *st = malloc(sizeof(stack));
   return st;
@@ -67,7 +83,7 @@ void freeStack(stack *st) {
   free(st);
 }
 
-static void stackPushNode(stack *st, listNode* node){
+static void stackPushNode(stack *st, listNode *node) {
   if (!st->head) {
     st->head = node;
     st->len = 1;
@@ -76,7 +92,6 @@ static void stackPushNode(stack *st, listNode* node){
   node->next = st->head;
   st->head = node;
   st->len++;
-
 }
 
 void stackPush(stack *st, void *ptr) {
@@ -101,7 +116,7 @@ listNode *stackPop(stack *st) {
   if (st->len == 0 || !st->head)
     return NULL;
   listNode *current = st->head;
-  st->head = st->head->next;
+  NEXT(st->head);
   st->len--;
   return current;
 }
@@ -119,7 +134,7 @@ queue *newQueue() {
   return q;
 }
 
-void queueFree(queue *q){
+void queueFree(queue *q) {
   freeListNode(q->head, true);
   free(q);
 }
@@ -137,7 +152,7 @@ static void enqueueNode(queue *q, listNode *node) {
     q->len = 1;
   } else {
     q->tail->next = node;
-    q->tail = q->tail->next;
+    NEXT(q->tail);
     q->len++;
   }
 }
@@ -160,7 +175,6 @@ void enqueueUint(queue *q, uint64_t uint) {
   enqueueNode(q, node);
 }
 
-
 listNode *dequeue(queue *q) {
   if (!q)
     return NULL;
@@ -169,7 +183,7 @@ listNode *dequeue(queue *q) {
     return NULL;
 
   listNode *head = q->head;
-  q->head = q->head->next;
+  NEXT(q->head);
 
   if (!q->head) {
     q->tail = NULL;
@@ -178,4 +192,123 @@ listNode *dequeue(queue *q) {
   q->len--;
 
   return head;
+}
+
+list *newList() {
+  list *l = malloc(sizeof(list));
+  return l;
+}
+
+listNode *listAt(list *l, size_t index) {
+  listNode *c = l->head;
+  for (size_t i = 0; i < index; i++) {
+    if (!c)
+      return NULL;
+    NEXT(c);
+  }
+  return c;
+}
+
+inline listNode *listPeek(list *l) { return l->curr; }
+
+listNode *listNext(list *l) {
+  if (l->index >= l->len)
+    return NULL;
+  if (!l->curr || !l->curr->next)
+    return NULL;
+  NEXT(l->curr);
+  l->index++;
+  return listPeek(l);
+}
+
+listNode *listPrev(list *l) {
+  if (l->index <= 0)
+    return NULL;
+  if (!l->curr || !l->curr->prev)
+    return NULL;
+  PREV(l->curr);
+  l->index--;
+  return listPeek(l);
+}
+
+list *listCopy(list *l) {
+  list *copy = newList();
+  copy->len = l->len;
+  if (l->head) {
+    copy->head = listNodeCopy(l->head, true);
+  }
+
+  listNode *dummy = copy->head;
+  while (dummy && dummy->next) {
+    NEXT(dummy);
+  }
+  if (dummy) {
+    copy->tail = dummy;
+  }
+
+  return copy;
+}
+
+typedef int (*listCompare)(listNode *, listNode *);
+
+static void listSwapNodes(list *l, int i, int j) {
+  listNode *iValue = listAt(l, i);
+  listNode *jValue = listAt(l, j);
+
+  uint64_t val = iValue->value.uint;
+  iValue->value.uint = jValue->value.uint;
+  jValue->value.uint = val;
+}
+
+static int listPartition(list *l, int start, int end, listCompare compare) {
+  int p = rand() % l->len;
+  int s = start;
+  int e = end;
+
+  listNode *mid = listAt(l, p);
+  listNode *left = listAt(l, s);
+  listNode *right = listAt(l, e);
+
+  listSwapNodes(l, p, end);
+
+  while (s <= end) {
+    while (s <= end && compare(left, mid) <= 0) {
+      s++;
+      NEXT(left);
+    }
+    while (s <= end && compare(right, mid) >= 0) {
+      e--;
+      PREV(right);
+    }
+    listSwapNodes(l, s, e);
+  }
+
+  listSwapNodes(l, s, end);
+
+  return s;
+}
+
+static int listDefaultCompare(listNode *n1, listNode *n2) {
+  return n1->value.uint - n2->value.uint;
+}
+
+static void listSortPartition(list *l, int start, int end,
+                              listCompare compare) {
+  if (start >= end)
+    return;
+
+  int mid = listPartition(l, start, end, compare);
+
+  listSortPartition(l, 0, mid - 1, compare);
+  listSortPartition(l, mid + 1, end, compare);
+}
+
+/*
+ * A sample implementation of quicksort
+ */
+void listSort(list *l, listCompare compare) {
+  if (!compare) {
+    compare = listDefaultCompare;
+  }
+  listSortPartition(l, 0, l->len, compare);
 }

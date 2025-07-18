@@ -36,31 +36,13 @@
 #include <stdio.h>
 
 int main(int argc, const char **argv) {
-  stack *st = newStack();
   int a = 10;
   double b = 1231412412341234.4356345834;
   uint64_t value = 65748623;
 
-  stackPushUint(st, value);
-  stackPush(st, &a);
-  stackPushDouble(st, b);
-
-  printf("Stack Data %zu: %f\n", st->len, stackPop(st)->value.fl);
-
-  printf("Stack Data %zu: %d\n", st->len, *(int *)stackPop(st)->value.ptr);
-
-  printf("Stack Data %zu: %d\n", st->len, (int)stackPop(st)->value.uint);
-
-  stackFree(st);
-  st = NULL;
-
-  queue *q = newQueue();
-  enqueue(q, &a);// 0
-  enqueue(q, &b);// 1
-  listNode *node = dequeue(q);
-  int val = *(int *)node->value.ptr;
-  printf("Dequeued\n");
-  printf("Dequeued value %d\n", val);
-  // printf("Dequeued value %f\n", *(double *)node->value.ptr);
-  queueFree(q);
+  list *l = newList();
+  listPushUint(l, a);
+  listPushUint(l, a);
+  listPushUint(l, a);
+  listPushUint(l, a);
 }

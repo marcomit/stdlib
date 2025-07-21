@@ -66,6 +66,10 @@ typedef struct list {
   size_t index;
 } list;
 
+listNode *newListNode();
+listNode *newListNodeUint(uint64_t);
+listNode *newListNodeDouble(double);
+listNode *newListNodePtr(void *);
 void freeListNode(listNode *, bool);
 
 /*
@@ -102,7 +106,7 @@ void listFree(list *);
 list *listCopy(list *);
 
 void listPush(list *, void *);
-void listPUshNode(list *, listNode *);
+void listPushNode(list *, listNode *);
 listNode *listPop(list *);
 
 void listPushFront(list *, void *);

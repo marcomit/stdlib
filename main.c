@@ -41,8 +41,15 @@ int main(int argc, const char **argv) {
   uint64_t value = 65748623;
 
   list *l = newList();
-  listPushUint(l, a);
-  listPushUint(l, a);
-  listPushUint(l, a);
-  listPushUint(l, a);
+  printf("List created\n");
+
+  listPush(l, &a);
+  listPushNode(l, newListNodeDouble(b));
+  listPushNode(l, newListNodePtr(&value));
+
+  printf("Numero %d\n", *(int *)(l->head->value.ptr));
+  // printf("Double %f", listPeek(l)->value.fl);
+  // printf("Ptr %p", listPeek(l)->value.ptr);
+
+  return 0;
 }

@@ -49,6 +49,24 @@ listNode *newListNode() {
   return node;
 }
 
+listNode *newListNodeUint(uint64_t value) {
+  listNode *node = newListNode();
+  node->value.uint = value;
+  return node;
+}
+
+listNode *newListNodeDouble(double value) {
+  listNode *node = newListNode();
+  node->value.fl = value;
+  return node;
+}
+
+listNode *newListNodePtr(void *value) {
+  listNode *node = newListNode();
+  node->value.ptr = value;
+  return node;
+}
+
 void freeListNode(listNode *node, bool recursive) {
   if (!node)
     return;
@@ -83,7 +101,7 @@ void freeStack(stack *st) {
   free(st);
 }
 
-static void stackPushNode(stack *st, listNode *node) {
+void stackPushNode(stack *st, listNode *node) {
   if (!st->head) {
     st->head = node;
     st->len = 1;
@@ -139,7 +157,7 @@ void queueFree(queue *q) {
   free(q);
 }
 
-static void enqueueNode(queue *q, listNode *node) {
+void enqueueNode(queue *q, listNode *node) {
   if (!q) {
     return;
   }
@@ -196,6 +214,11 @@ listNode *dequeue(queue *q) {
 
 list *newList() {
   list *l = malloc(sizeof(list));
+  l->len = 0;
+  l->index = 0;
+  l->curr = NULL;
+  l->tail = NULL;
+  l->head = NULL;
   return l;
 }
 
@@ -311,4 +334,32 @@ void listSort(list *l, listCompare compare) {
     compare = listDefaultCompare;
   }
   listSortPartition(l, 0, l->len, compare);
+}
+
+void listPushNode(list *l, listNode *node) {
+  printf("Len: %zu\n", l->len);
+  if (l->len == 0) {
+    printf("Setting head\n");
+    l->head = node;
+    printf("Setting tail\n");
+    l->tail = node;
+    printf("Setted\n");
+    l->len = 1;
+    return;
+  }
+  printf("Len greater than 0\n");
+  node->prev = l->tail;
+  l->tail->next = node;
+  NEXT(l->tail);
+  printf("Increasing length");
+  l->len = 1;
+}
+
+void listPush(list *l, void *ptr) {
+  listNode *node = newListNode();
+  if (!node) {
+    printf("Node is null");
+  }
+  node->value.ptr = ptr;
+  listPushNode(l, node);
 }

@@ -30,50 +30,20 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include <stddef.h>
+#include <stdbool.h>
 
-#include "standardlib.h"
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "obj.h"
+typedef void *object;
 
-// int main(int argc, const char **argv) {
-//   int a = 10;
-//   double b = 1231412412341234.4356345834;
-//   uint64_t value = 65748623;
-//
-//   list *l = newList();
-//   printf("List created\n");
-//
-//   listPush(l, &a);
-//   listPushNode(l, newListNodeDouble(b));
-//   listPushNode(l, newListNodePtr(&value));
-//
-//   listNode *iterator = listPeek(l);
-//
-//   printf("Numero %d\n", *(int *)iterator->value.ptr);
-//   listNext(iterator);
-//   // printf("Double %f", listPeek(l)->value.fl);
-//   // printf("Ptr %p", listPeek(l)->value.ptr);
-//
-//   return 0;
-// }
+typedef struct object_hdr {
+  void (*dealloc)(void *);
+  size_t count;
+  void *ptr;
+} object_hdr;
 
-int main() {
-  int *a = malloc(sizeof(int));
-  *a = 10;
-  object obj = newobject(a, free);
+object newobject(void *, void (*dellaoc)(void *));
 
-  int *b = objinc(obj);
-  int *c = objinc(obj);
-  int *d = objinc(obj);
+bool objvalid(object *);
 
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  printf("%d", *a);
-  return 0;
-}
+object objinc(object);
+void objdecr(object);

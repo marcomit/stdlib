@@ -232,8 +232,6 @@ listNode *listAt(list *l, size_t index) {
   return c;
 }
 
-inline listNode *listPeek(list *l) { return l->curr; }
-
 listNode *listNext(list *l) {
   if (l->index >= l->len)
     return NULL;
@@ -336,30 +334,71 @@ void listSort(list *l, listCompare compare) {
   listSortPartition(l, 0, l->len, compare);
 }
 
+bool listInit(list *l, listNode *node) {
+  if(l->len != 0) return false;
+
+  if(!l->curr) l->curr = node;
+
+  l->head = node;
+  l->tail = node;
+  l->len = 1;
+  return true;
+}
+
 void listPushNode(list *l, listNode *node) {
-  printf("Len: %zu\n", l->len);
-  if (l->len == 0) {
-    printf("Setting head\n");
-    l->head = node;
-    printf("Setting tail\n");
-    l->tail = node;
-    printf("Setted\n");
-    l->len = 1;
-    return;
-  }
-  printf("Len greater than 0\n");
+  if (listInit(l, node)) return;
+
   node->prev = l->tail;
   l->tail->next = node;
   NEXT(l->tail);
-  printf("Increasing length");
-  l->len = 1;
+
+  listIncrLen(l);
+}
+
+void listPushFrontNode(list *l, listNode *node) {
+  if (listInit(l, node)) return;
+
+  node->next = l->head;
+  l->head->prev = node;
+  PREV(l->head);
+
+  listIncrLen(l);
 }
 
 void listPush(list *l, void *ptr) {
   listNode *node = newListNode();
-  if (!node) {
-    printf("Node is null");
-  }
   node->value.ptr = ptr;
   listPushNode(l, node);
+}
+
+
+
+listNode *listPop(list *l) {
+  if (l->len == 0) return NULL;
+  
+  listNode *node = l->tail;
+  PREV(l->tail);
+  
+  l->tail->next = NULL;
+
+  listDecrLen(l);
+  return node;
+}
+
+listNode *listPopFront(list *l) {
+  if (l->len == 0) return NULL;
+
+  listNode *node = l->head;
+  NEXT(l->head);
+
+  l->head->prev = NULL;
+
+  listDecrLen(l);
+  return node;
+}
+
+void listPushFront(list *l, void *ptr) {
+  listNode *node = newListNode();
+  node->value.ptr = ptr;
+  listPushFrontNode(l, node);
 }

@@ -31,49 +31,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "standardlib.h"
-#include <stdint.h>
+#include "obj.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "obj.h"
 
-// int main(int argc, const char **argv) {
-//   int a = 10;
-//   double b = 1231412412341234.4356345834;
-//   uint64_t value = 65748623;
-//
-//   list *l = newList();
-//   printf("List created\n");
-//
-//   listPush(l, &a);
-//   listPushNode(l, newListNodeDouble(b));
-//   listPushNode(l, newListNodePtr(&value));
-//
-//   listNode *iterator = listPeek(l);
-//
-//   printf("Numero %d\n", *(int *)iterator->value.ptr);
-//   listNext(iterator);
-//   // printf("Double %f", listPeek(l)->value.fl);
-//   // printf("Ptr %p", listPeek(l)->value.ptr);
-//
-//   return 0;
+object_hdr *newhdr(void *ptr, void (*dealloc)(void *)) {
+  object_hdr *hdr = malloc(sizeof(object_hdr));
+  hdr->count = 1;
+  hdr->dealloc = dealloc;
+  hdr->ptr = ptr;
+  return hdr;
+}
+
+object_hdr *hdr_from_obj(object obj){
+  return (object_hdr *)(obj - sizeof(object_hdr));
+}
+
+// object newobject(void (*dealloc)(void *)) {
+//   object_hdr *hdr = newhdr(NULL, dealloc);
+//   return ptr;
 // }
 
-int main() {
-  int *a = malloc(sizeof(int));
-  *a = 10;
-  object obj = newobject(a, free);
+object objinc(object obj) {
+  if(!obj) return NULL;
+  object_hdr *hdr = hdr_from_obj(obj);
+  hdr->count++;
+  printf("REF: %zu\n", hdr->count);
+  return obj;
+}
 
-  int *b = objinc(obj);
-  int *c = objinc(obj);
-  int *d = objinc(obj);
-
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  printf("%d", *a);
-  return 0;
+void objdecr(object obj) {
+  if(!obj) return;
+  object_hdr *hdr = hdr_from_obj(obj);
+  if(hdr->count < 2) {
+    printf("Memory freed\n");
+    if(hdr->dealloc) hdr->dealloc(obj);
+    free(hdr);
+    return;
+  }
+  printf("REF: %zu\n", hdr->count);
+  hdr->count--;
 }

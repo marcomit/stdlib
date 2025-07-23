@@ -36,6 +36,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define listLen(l) (l)->len
+#define listPeek(l) (l)->curr
+#define listIncrLen(l) (l)->len++
+#define listDecrLen(l) (l)->len--
+
 typedef struct listNode {
   union {
     void *ptr;
@@ -113,7 +118,7 @@ void listPushFront(list *, void *);
 void listPushFrontNode(list *, listNode *);
 listNode *listPopFront(list *);
 
-listNode *listPeek(list *);
+// listNode *listPeek(list *);
 listNode *listNext(list *);
 listNode *listPrev(list *);
 listNode *listAt(list *, size_t);

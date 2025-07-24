@@ -31,35 +31,4 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "hset.h"
-#include <stdbool.h>
-#include <stdlib.h>
 
-#define HSET_LEN 1024
-
-hset *newhset() {
-  hset *set = malloc(sizeof(hset));
-
-  set->cnt = 0;
-  set->size = HSET_LEN;
-
-  set->buckets = malloc(sizeof(listNode *) * set->size);
-
-  return set;
-}
-
-void freehset(hset *set) {
-  for (int i = 0; i < set->size; i++) {
-    freeListNode(set->buckets[i], true);
-  }
-
-  free(set);
-}
-
-bool hsetcontains(hset *set, void *val) {
-  return false;
-}
-
-bool hsetadd(hset *set, void *val) {
-  return false;
-}

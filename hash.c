@@ -31,35 +31,62 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "hset.h"
-#include <stdbool.h>
-#include <stdlib.h>
 
-#define HSET_LEN 1024
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 
-hset *newhset() {
-  hset *set = malloc(sizeof(hset));
+#ifndef MURMUR_SEED
 
-  set->cnt = 0;
-  set->size = HSET_LEN;
+#define MURMUR_SEED 0x9747b28c
 
-  set->buckets = malloc(sizeof(listNode *) * set->size);
+#endif 
 
-  return set;
+#define ROL(x) (x) <<= 1
+#define SHIFT(k, l, r) ((k) << (l)) | ((k) >> r)  
+
+static inline uint64_t ptrToInt(void *ptr) {
+  union {
+    void *ptr;
+    uint64_t u;
+  } val;
+  val.ptr = ptr;
+  return val.u;
 }
 
-void freehset(hset *set) {
-  for (int i = 0; i < set->size; i++) {
-    freeListNode(set->buckets[i], true);
+static inline uint64_t murmur_scramble(uint64_t key) {
+  key *= 0xcc9e2d51;
+  key = SHIFT(key, 15, 17);
+  key *= 0x1b873593;
+  return key;
+}
+
+uint64_t murmur3_hash(const uint8_t *key, size_t len) {
+  uint64_t hash = MURMUR_SEED;
+  uint64_t k;
+
+  for (size_t i = len >> 2; i; i--) {
+    memcpy(&k, key, sizeof(uint64_t));
+    key += sizeof(uint64_t);
+    hash ^= murmur_scramble(k);
+    hash = SHIFT(hash, 13, 19);
+    hash = hash * 5 + 0xe6546b64;
+  }
+  k = 0;
+
+  for (size_t i = len & 3; i; i--) {
+    k <<=8;
+    k |= key[i - 1];
   }
 
-  free(set);
+  hash ^= murmur_scramble(k);
+  hash ^= len;
+	hash ^= hash >> 16;
+	hash *= 0x85ebca6b;
+	hash ^= hash >> 13;
+	hash *= 0xc2b2ae35;
+	hash ^= hash >> 16;
+
+  return hash;
 }
 
-bool hsetcontains(hset *set, void *val) {
-  return false;
-}
-
-bool hsetadd(hset *set, void *val) {
-  return false;
-}

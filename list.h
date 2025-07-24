@@ -31,6 +31,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef LIST_H
+
+#define LIST_H
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -41,7 +45,9 @@
 #define listIncrLen(l) (l)->len++
 #define listDecrLen(l) (l)->len--
 
-typedef struct listNode {
+typedef struct listNode listNode;
+
+struct listNode {
   union {
     void *ptr;
     double fl;
@@ -49,7 +55,7 @@ typedef struct listNode {
   } value;
   struct listNode *prev;
   struct listNode *next;
-} listNode;
+};
 
 typedef struct stack {
   listNode *head;
@@ -124,3 +130,5 @@ listNode *listPrev(list *);
 listNode *listAt(list *, size_t);
 
 void listSort(list *, int (*compare)(listNode *, listNode *));
+
+#endif // LIST_H

@@ -30,7 +30,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef char *string;
 
@@ -46,3 +48,6 @@ string strnewlen(string, size_t);
 string strsubstr(string, size_t, size_t);
 
 string *strsplit(string, const char, size_t *);
+
+bool strstartswith(string, string);
+string strendswith(string, string);

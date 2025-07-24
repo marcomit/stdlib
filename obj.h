@@ -30,8 +30,10 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef void *object;
 
@@ -46,4 +48,4 @@ object newobject(void *, void (*dellaoc)(void *));
 bool objvalid(object *);
 
 object objinc(object);
-void objdecr(object);
+object objdec(object);

@@ -35,7 +35,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-object_hdr *newhdr(void *ptr, void (*dealloc)(void *)) {
+#define objIncrRef(x) (x)->count++
+#define objDecrRef(x) (x)->count--
+
+#define objHeader(x) (object_hdr *)((x) - sizeof(object_hdr) + sizeof(void *))
+
+static object_hdr *newhdr(void *ptr, void (*dealloc)(void *)) {
   object_hdr *hdr = malloc(sizeof(object_hdr));
   hdr->count = 1;
   hdr->dealloc = dealloc;
@@ -43,32 +48,32 @@ object_hdr *newhdr(void *ptr, void (*dealloc)(void *)) {
   return hdr;
 }
 
-object_hdr *hdr_from_obj(object obj){
-  return (object_hdr *)(obj - sizeof(object_hdr));
+object newobject(void *ptr, void (*dealloc)(void *)) {
+  object_hdr *hdr = newhdr(ptr, dealloc);
+  return &hdr->ptr;
 }
-
-// object newobject(void (*dealloc)(void *)) {
-//   object_hdr *hdr = newhdr(NULL, dealloc);
-//   return ptr;
-// }
 
 object objinc(object obj) {
   if(!obj) return NULL;
-  object_hdr *hdr = hdr_from_obj(obj);
-  hdr->count++;
-  printf("REF: %zu\n", hdr->count);
+  object_hdr *hdr = objHeader(obj);
+  
+  objIncrRef(hdr);
+
   return obj;
 }
 
-void objdecr(object obj) {
-  if(!obj) return;
-  object_hdr *hdr = hdr_from_obj(obj);
+object objdec(object obj) {
+  if(!obj) return NULL;
+
+  object_hdr *hdr = objHeader(obj);
+
   if(hdr->count < 2) {
-    printf("Memory freed\n");
     if(hdr->dealloc) hdr->dealloc(obj);
     free(hdr);
-    return;
+    return NULL;
   }
-  printf("REF: %zu\n", hdr->count);
-  hdr->count--;
+
+  objDecrRef(hdr);
+  
+  return obj;
 }

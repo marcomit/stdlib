@@ -31,49 +31,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "standardlib.h"
+// #include "standardlib.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "obj.h"
-
-// int main(int argc, const char **argv) {
-//   int a = 10;
-//   double b = 1231412412341234.4356345834;
-//   uint64_t value = 65748623;
-//
-//   list *l = newList();
-//   printf("List created\n");
-//
-//   listPush(l, &a);
-//   listPushNode(l, newListNodeDouble(b));
-//   listPushNode(l, newListNodePtr(&value));
-//
-//   listNode *iterator = listPeek(l);
-//
-//   printf("Numero %d\n", *(int *)iterator->value.ptr);
-//   listNext(iterator);
-//   // printf("Double %f", listPeek(l)->value.fl);
-//   // printf("Ptr %p", listPeek(l)->value.ptr);
-//
-//   return 0;
-// }
 
 int main() {
   int *a = malloc(sizeof(int));
   *a = 10;
   object obj = newobject(a, free);
 
-  int *b = objinc(obj);
-  int *c = objinc(obj);
-  int *d = objinc(obj);
 
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
-  objdecr(a);
   printf("%d", *a);
   return 0;
 }
